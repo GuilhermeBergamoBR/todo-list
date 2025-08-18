@@ -1,3 +1,0 @@
-input[type=checkbox]:checked + label.completed-task {
-  text-decoration: line-through;
-}

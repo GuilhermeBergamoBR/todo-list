@@ -1,5 +1,5 @@
-import "./App.css";
 import { useEffect, useState } from "react";
+import Task from "./components/Task/Task";
 
 type Task = {
   id: number;
@@ -34,7 +34,7 @@ function App() {
     }
   };
 
-  const toggleCompleted = (target: number, value: boolean) => {
+  const handleToggleCompleted = (target: number, value: boolean) => {
     const updatedTasks = taskList.map((item) =>
       item.id === target ? { ...item, completed: value } : item
     );
@@ -60,22 +60,15 @@ function App() {
       />
       <button onClick={addTask}>Add</button>
 
-      <ul>
-        {taskList.map((task) => (
-          <li className="task" key={task.id}>
-            <input
-              id={`task-${task.id}`}
-              type="checkbox"
-              checked={task.completed}
-              onChange={(e) => toggleCompleted(task.id, e.target.checked)}
-            />
-            <label htmlFor={`task-${task.id}`} className="completed-task">
-              {task.name}
-            </label>
-            <button onClick={() => handleRemoveTask(task.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      {taskList.map((task) => (
+        <Task
+          id={task.id}
+          name={task.name}
+          isCompleted={task.completed}
+          onToggle={(e)=> handleToggleCompleted(task.id, e.target.checked)}
+          onDelete={() => handleRemoveTask(task.id)}
+        />
+      ))}
     </>
   );
 }
