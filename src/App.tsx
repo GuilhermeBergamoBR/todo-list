@@ -4,49 +4,42 @@ import Task from "./components/Task/Task";
 type Task = {
   id: number;
   name: string;
-  completed: boolean;
+  done: boolean;
 };
 
 function App() {
-  const [taskName, setTaskName] = useState<string>("");
-  const [taskList, setTaskList] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem("tasks");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
-    const tasks: string | null = localStorage.getItem("tasks");
-    if (tasks) {
-      setTaskList(JSON.parse(tasks));
-    }
-  }, []);
-
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTaskName(event.target.value);
-  };
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = () => {
-    if (taskName) {
-      const taskId = Math.random();
-      const newTask = { id: taskId, name: taskName, completed: false };
-      const updatedTaskList = [...taskList, newTask];
-
-      setTaskList(updatedTaskList);
-      localStorage.setItem("tasks", JSON.stringify(updatedTaskList));
-      setTaskName("");
-    }
+    if (!newTask.trim()) return;
+    setTasks([...tasks, { id: Date.now(), name: newTask, done: false }]);
+    setNewTask("");
   };
 
-  const handleToggleCompleted = (target: number, value: boolean) => {
-    const updatedTasks = taskList.map((item) =>
-      item.id === target ? { ...item, completed: value } : item
+  const toggleTask = (id: number) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, done: !task.done } : task
+      )
     );
-
-    setTaskList(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
-  const handleRemoveTask = (target: number) => {
-    const updatedTasks = taskList.filter((task) => task.id !== target);
-    setTaskList(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  const deleteTask = (id: number) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+  };
+
+  const editTask = (id: number, newName: string) => {
+    setTasks(
+      tasks.map((task) => (task.id === id ? { ...task, name: newName } : task))
+    );
   };
 
   return (
@@ -54,21 +47,23 @@ function App() {
       <h1>Todo List</h1>
       <input
         type="text"
-        value={taskName}
-        onChange={handleNameChange}
+        value={newTask}
+        onChange={(e) => setNewTask(e.target.value)}
         placeholder="Type what you have to do"
       />
       <button onClick={addTask}>Add</button>
 
-      {taskList.map((task) => (
-        <Task
-          id={task.id}
-          name={task.name}
-          isCompleted={task.completed}
-          onToggle={(e)=> handleToggleCompleted(task.id, e.target.checked)}
-          onDelete={() => handleRemoveTask(task.id)}
-        />
-      ))}
+      <ul>
+        {tasks.map((task) => (
+          <Task
+            key={task.id}
+            task={task}
+            onToggle={toggleTask}
+            onDelete={deleteTask}
+            onEdit={editTask}
+          />
+        ))}
+      </ul>
     </>
   );
 }

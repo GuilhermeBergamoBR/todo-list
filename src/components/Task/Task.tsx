@@ -1,51 +1,55 @@
 import "./Task.css";
-import React, { useState, type FC } from "react";
+import { useState } from "react";
 
-type TaskComponent = {
-  id: number;
-  name: string;
-  isCompleted: boolean;
-  onToggle: (event: React.ChangeEvent<HTMLInputElement>) => void;
+type TaskProps = {
+  task: { id: number; name: string; done: boolean };
+  onToggle: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (id: number, newmName: string) => void;
 };
 
-const Task: FC<TaskComponent> = ({
-  id,
-  name,
-  isCompleted,
-  onToggle,
-  onDelete,
-}) => {
+const Task = ({ task, onToggle, onDelete, onEdit }: TaskProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [taskName, setTaskName] = useState(name);
+  const [newName, setNewName] = useState(task.name);
 
-  const updateTaskName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTaskName(event.target.value);
+  const handleSave = () => {
+    if (newName.trim()) {
+      onEdit(task.id, newName);
+      setIsEditing(false);
+    }
   };
 
   return (
     <div>
       <input
-        id={`task-${id}`}
+        id={`task-${task.id}`}
         type="checkbox"
-        checked={isCompleted}
-        onChange={onToggle}
+        checked={task.done}
+        onChange={() => onToggle(task.id)}
       />
       {isEditing ? (
-        <input
-          id={`task-${id}`}
-          type="text"
-          value={taskName}
-          onChange={(e) => updateTaskName(e)}
-        />
+        <input value={newName} onChange={(e) => setNewName(e.target.value)} />
       ) : (
-        <label htmlFor={`task-${id}`} className="completed-task">
-          {name}
+        <label htmlFor={`task-${task.id}`} className="completed-task">
+          {task.name}
         </label>
       )}
 
-      <button onClick={() => setIsEditing(true)}>Edit</button>
-      <button onClick={() => onDelete(id)}>Delete</button>
+      <div>
+        {isEditing ? (
+          <>
+            <button onClick={handleSave}>Save</button>
+            <button onClick={() => setIsEditing(false)}>Cancelar</button>
+          </>
+        ) : (
+          <>
+            <button disabled={false} onClick={()=> setIsEditing(true)}>
+              Edit
+            </button>
+            <button onClick={() => onDelete(task.id)}>Delete</button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
