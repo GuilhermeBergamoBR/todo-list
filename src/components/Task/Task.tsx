@@ -12,6 +12,11 @@ const Task = ({ task, onToggle, onDelete, onEdit }: TaskProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(task.name);
 
+  const handleEdit = () => {
+    setIsEditing(true);
+    setNewName(task.name);
+  };
+
   const handleSave = () => {
     if (newName.trim()) {
       onEdit(task.id, newName);
@@ -28,7 +33,11 @@ const Task = ({ task, onToggle, onDelete, onEdit }: TaskProps) => {
         onChange={() => onToggle(task.id)}
       />
       {isEditing ? (
-        <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+        <input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          autoFocus={isEditing}
+        />
       ) : (
         <label htmlFor={`task-${task.id}`} className="completed-task">
           {task.name}
@@ -43,7 +52,7 @@ const Task = ({ task, onToggle, onDelete, onEdit }: TaskProps) => {
           </>
         ) : (
           <>
-            <button disabled={false} onClick={()=> setIsEditing(true)}>
+            <button disabled={false} onClick={handleEdit}>
               Edit
             </button>
             <button onClick={() => onDelete(task.id)}>Delete</button>
