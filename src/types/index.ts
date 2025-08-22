@@ -6,4 +6,10 @@ export type Task = {
 
 export type DoneTasksCounterProps = {
   tasks: Task[];
-}
+};
+
+export type ErrorMessageProps = {
+  text: string;
+  duration?: number;
+  clearMessage: ()=> void;
+};
