@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 
-type NewTaskAlertProps = {
+type ActionFeedbackProps = {
   message: string;
+  clearMessage: ()=> void;
   duration?: number;
 };
 
-const NewTaskAlert = ({ message, duration = 3000 }: NewTaskAlertProps) => {
+const ActionFeedback = ({ message, clearMessage, duration = 3000 }: ActionFeedbackProps) => {
   const [isVisible, setIsVisible] = useState(false); // controla visibilidade da notificação
   const [currentMessage, setCurrentMessage] = useState(""); // define qual será a mensagem atual
 
@@ -18,13 +19,14 @@ const NewTaskAlert = ({ message, duration = 3000 }: NewTaskAlertProps) => {
       const timer = setTimeout(() => {
         setIsVisible(false); // muda pra invisivel depois de certa duração
         setCurrentMessage(""); // limpa  mensagem depois de certa duração
+        clearMessage()
       }, duration);
 
       return ()=> clearTimeout(timer)
     }
-  }, [message, duration]); // executa a função sempre que as props são atualizadas
+  }, [message, clearMessage, duration]); // executa a função sempre que as props são atualizadas
 
   return isVisible ? <div>{currentMessage}</div> : null; // controla se a mensagem será exibida ou não
 };
 
-export default NewTaskAlert;
+export default ActionFeedback;
