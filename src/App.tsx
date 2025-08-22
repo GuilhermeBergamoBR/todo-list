@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import Task from "./components/Task/Task";
-import NewTaskAlert from "./components/NewTaskAlert";
+import ActionFeedback from "./components/ActionFeedback";
 import type { Task as TaskType } from "./types";
 import DoneTasksCounter from "./components/DoneTasksCounter/DoneTasksCounter";
 
 function App() {
   const [newTask, setNewTask] = useState<string>("");
-  const [newTaskNotificationMessage, setNewTaskNotificationMessage] =
-    useState(""); // novo hook para a mensagem do feedback visual temporário quando uma nova tarefa é criada
+  const [actionMessage, setActionMessage] = useState("");
   const [tasks, setTasks] = useState<TaskType[]>(() => {
     const saved = localStorage.getItem("tasks");
     return saved ? JSON.parse(saved) : [];
@@ -21,10 +20,7 @@ function App() {
     if (!newTask.trim()) return;
     setTasks([...tasks, { id: Date.now(), name: newTask, done: false }]);
     setNewTask("");
-    setNewTaskNotificationMessage("New task created!"); //define mensagem do feeback visual
-    setTimeout(() => {
-      setNewTaskNotificationMessage(""); // remove a mensagem
-    }, 2000); // depois de 2 segundos
+    setActionMessage("New task created!"); //define mensagem do feeback visual
   };
 
   const toggleTask = (id: number) => {
@@ -37,12 +33,14 @@ function App() {
 
   const deleteTask = (id: number) => {
     setTasks(tasks.filter((task) => task.id !== id));
+    setActionMessage("Task deleted!");
   };
 
   const editTask = (id: number, newName: string) => {
     setTasks(
       tasks.map((task) => (task.id === id ? { ...task, name: newName } : task))
     );
+    setActionMessage("Task updated!");
   };
 
   return (
@@ -57,7 +55,11 @@ function App() {
       />
       <button onClick={addTask}>Add</button>
 
-      <NewTaskAlert message={newTaskNotificationMessage} duration={2000} />
+      <ActionFeedback
+        message={actionMessage}
+        clearMessage={() => setActionMessage("")}
+        duration={2000}
+      />
 
       <ul>
         {tasks.map((task) => (
