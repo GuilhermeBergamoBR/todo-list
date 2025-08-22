@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
 import Task from "./components/Task/Task";
-import NewTaskAlert from "./components/ActionFeedback";
-
-type Task = {
-  id: number;
-  name: string;
-  done: boolean;
-};
+import ActionFeedback from "./components/ActionFeedback";
+import type { Task as TaskType } from "./types";
+import DoneTasksCounter from "./components/DoneTasksCounter/DoneTasksCounter";
 
 function App() {
   const [newTask, setNewTask] = useState<string>("");
-  const [actionMessage, setActionMessage] = useState(""); // novo hook para a mensagem do feedback visual temporário quando uma nova tarefa é criada
-  const [tasks, setTasks] = useState<Task[]>(() => {
+  const [actionMessage, setActionMessage] = useState("");
+  const [tasks, setTasks] = useState<TaskType[]>(() => {
     const saved = localStorage.getItem("tasks");
     return saved ? JSON.parse(saved) : [];
   });
@@ -50,12 +46,7 @@ function App() {
   return (
     <>
       <h1>Todo List</h1>
-      {tasks.length > 0 && (
-        <p>
-          {tasks.filter((task) => task.done).length} of {tasks.length} tasks
-          completed
-        </p>
-      )}
+      <DoneTasksCounter tasks={tasks} />
       <input
         type="text"
         value={newTask}
@@ -64,7 +55,7 @@ function App() {
       />
       <button onClick={addTask}>Add</button>
 
-      <NewTaskAlert
+      <ActionFeedback
         message={actionMessage}
         clearMessage={() => setActionMessage("")}
         duration={2000}
