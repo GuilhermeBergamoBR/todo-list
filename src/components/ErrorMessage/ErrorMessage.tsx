@@ -17,8 +17,8 @@ const ErrorMessage = ({
   }, [text, clearMessage, duration]);
 
   return (
-    <div>
-      <p style={{ color: "#F00" }}>{text}</p>
+    <div style={{ color: "#F00" }} role="alert">
+      {text}
     </div>
   );
 };

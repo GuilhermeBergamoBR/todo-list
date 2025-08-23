@@ -19,8 +19,10 @@ function App() {
   }, [tasks]);
 
   const addTask = () => {
-    const alreadyExists = tasks.find((task) => task.name === newTask);
-    
+    const alreadyExists = tasks.find(
+      (task) => task.name.toLowerCase() === newTask.toLowerCase()
+    );
+
     if (!newTask.trim()) {
       setErrorMessage("Preencha o nome da tarefa.");
     } else if (alreadyExists) {
@@ -59,7 +61,10 @@ function App() {
       <input
         type="text"
         value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
+        onChange={(e) => {
+          setNewTask(e.target.value);
+          if (errorMessage) setErrorMessage("");
+        }}
         placeholder="Type what you have to do"
       />
       <button onClick={addTask}>Add</button>
