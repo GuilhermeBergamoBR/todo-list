@@ -3,6 +3,7 @@ import Task from "./components/Task/Task";
 import ActionFeedback from "./components/ActionFeedback";
 import type { Task as TaskType } from "./types";
 import DoneTasksCounter from "./components/DoneTasksCounter/DoneTasksCounter";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
 
 function App() {
   const [newTask, setNewTask] = useState<string>("");
@@ -11,16 +12,26 @@ function App() {
     const saved = localStorage.getItem("tasks");
     return saved ? JSON.parse(saved) : [];
   });
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   const addTask = () => {
-    if (!newTask.trim()) return;
-    setTasks([...tasks, { id: Date.now(), name: newTask, done: false }]);
-    setNewTask("");
-    setActionMessage("New task created!"); //define mensagem do feeback visual
+    const alreadyExists = tasks.find(
+      (task) => task.name.toLowerCase() === newTask.toLowerCase()
+    );
+
+    if (!newTask.trim()) {
+      setErrorMessage("Preencha o nome da tarefa.");
+    } else if (alreadyExists) {
+      setErrorMessage("Já existe uma tarefa com esse nome");
+    } else {
+      setTasks([...tasks, { id: Date.now(), name: newTask, done: false }]);
+      setNewTask("");
+      setActionMessage("New task created!"); //define mensagem do feeback visual
+    }
   };
 
   const toggleTask = (id: number) => {
@@ -50,11 +61,18 @@ function App() {
       <input
         type="text"
         value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
+        onChange={(e) => {
+          setNewTask(e.target.value);
+          if (errorMessage) setErrorMessage("");
+        }}
         placeholder="Type what you have to do"
       />
       <button onClick={addTask}>Add</button>
 
+      <ErrorMessage
+        text={errorMessage}
+        clearMessage={() => setErrorMessage("")}
+      />
       <ActionFeedback
         message={actionMessage}
         clearMessage={() => setActionMessage("")}
