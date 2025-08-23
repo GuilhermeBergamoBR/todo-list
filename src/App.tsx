@@ -4,6 +4,7 @@ import ActionFeedback from "./components/ActionFeedback";
 import type { Task as TaskType } from "./types";
 import DoneTasksCounter from "./components/DoneTasksCounter/DoneTasksCounter";
 import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+import { TaskList } from "./components/TaskList/TaskList";
 
 function App() {
   const [newTask, setNewTask] = useState<string>("");
@@ -54,20 +55,33 @@ function App() {
     setActionMessage("Task updated!");
   };
 
+  const deleteAllCompleted = () => {
+    setTasks(tasks.filter((task) => !task.done));
+  };
+
   return (
     <>
       <h1>Todo List</h1>
       <DoneTasksCounter tasks={tasks} />
-      <input
-        type="text"
-        value={newTask}
-        onChange={(e) => {
-          setNewTask(e.target.value);
-          if (errorMessage) setErrorMessage("");
-        }}
-        placeholder="Type what you have to do"
-      />
-      <button onClick={addTask}>Add</button>
+      <div>
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => {
+            const text = e.target.value;
+            setNewTask(text.charAt(0).toUpperCase() + text.slice(1));
+            if (errorMessage) setErrorMessage("");
+          }}
+          placeholder="Type what you have to do"
+          onKeyDown={(event) => (event.key == "Enter" ? addTask() : null)}
+        />
+        <button onClick={addTask}>Add</button>
+      </div>
+      <div>
+        {tasks.filter((task) => task?.done).length > 1 && (
+          <button onClick={deleteAllCompleted}>Delete all completed</button>
+        )}
+      </div>
 
       <ErrorMessage
         text={errorMessage}
@@ -78,18 +92,16 @@ function App() {
         clearMessage={() => setActionMessage("")}
         duration={2000}
       />
-
-      <ul>
-        {tasks.map((task) => (
+      <TaskList items={tasks} setItems={setTasks} getId={(task) => task.id}>
+        {(task) => (
           <Task
-            key={task.id}
             task={task}
             onToggle={toggleTask}
             onDelete={deleteTask}
             onEdit={editTask}
           />
-        ))}
-      </ul>
+        )}
+      </TaskList>
     </>
   );
 }
