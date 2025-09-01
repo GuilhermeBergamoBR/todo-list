@@ -48,11 +48,13 @@ export function TaskList<T>({
         items={items.map(getId)}
         strategy={verticalListSortingStrategy}
       >
-        {items.map((item) => (
-          <SortableItem key={getId(item)} id={getId(item)}>
-            {children(item)}
-          </SortableItem>
-        ))}
+        <div className="max-h-96 overflow-y-auto">
+          {items.map((item) => (
+            <SortableItem key={getId(item)} id={getId(item)}>
+              {children(item)}
+            </SortableItem>
+          ))}
+        </div>
       </SortableContext>
     </DndContext>
   );
@@ -91,17 +93,11 @@ function SortableItem({
         ref={setActivatorNodeRef}
         {...listeners}
         aria-label="Reordenar"
-        style={{
-          cursor: "grab",
-          userSelect: "none",
-          background: "transparent",
-          border: "none",
-        }}
+        className="cursor-grab select-none bg-transparent border-none"
       >
         ≡
       </button>
-
-      <div>{children}</div>
+      {children}
     </div>
   );
 }
