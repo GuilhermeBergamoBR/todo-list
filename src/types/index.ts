@@ -11,5 +11,11 @@ export type DoneTasksCounterProps = {
 export type ErrorMessageProps = {
   text: string;
   duration?: number;
-  clearMessage: ()=> void;
+  clearMessage: () => void;
+};
+
+export type TaskFormProps = {
+  errorMessage: string;
+  addTask: (newTask: string) => void;
+  clearError: () => void;
 };

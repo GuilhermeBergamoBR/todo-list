@@ -5,9 +5,11 @@ import type { Task as TaskType } from "./types";
 import DoneTasksCounter from "./components/DoneTasksCounter/DoneTasksCounter";
 import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
 import { TaskList } from "./components/TaskList/TaskList";
+import "./App.css";
+import Header from "./components/Header/Header";
+import TaskForm from "./components/TaskForm/TaskForm";
 
 function App() {
-  const [newTask, setNewTask] = useState<string>("");
   const [actionMessage, setActionMessage] = useState("");
   const [tasks, setTasks] = useState<TaskType[]>(() => {
     const saved = localStorage.getItem("tasks");
@@ -19,18 +21,17 @@ function App() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = () => {
+  const addTask = (newTask: string) => {
     const alreadyExists = tasks.find(
       (task) => task.name.toLowerCase() === newTask.toLowerCase()
     );
 
     if (!newTask.trim()) {
-      setErrorMessage("Preencha o nome da tarefa.");
+      setErrorMessage("Fill in the name of the task.");
     } else if (alreadyExists) {
-      setErrorMessage("Já existe uma tarefa com esse nome");
+      setErrorMessage("A task with that name already exists");
     } else {
       setTasks([...tasks, { id: Date.now(), name: newTask, done: false }]);
-      setNewTask("");
       setActionMessage("New task created!"); //define mensagem do feeback visual
     }
   };
@@ -60,49 +61,71 @@ function App() {
   };
 
   return (
-    <>
-      <h1>Todo List</h1>
-      <DoneTasksCounter tasks={tasks} />
-      <div>
-        <input
-          type="text"
-          value={newTask}
-          onChange={(e) => {
-            const text = e.target.value;
-            setNewTask(text.charAt(0).toUpperCase() + text.slice(1));
-            if (errorMessage) setErrorMessage("");
-          }}
-          placeholder="Type what you have to do"
-          onKeyDown={(event) => (event.key == "Enter" ? addTask() : null)}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+      }}
+    >
+      <Header />
+      <div className="m-8 p-8 w-160 min-w self-center">
+        <TaskForm
+          addTask={(newTaskName: string) => addTask(newTaskName)}
+          errorMessage={errorMessage}
+          clearError={() => setErrorMessage("")}
         />
-        <button onClick={addTask}>Add</button>
-      </div>
-      <div>
-        {tasks.filter((task) => task?.done).length > 1 && (
-          <button onClick={deleteAllCompleted}>Delete all completed</button>
-        )}
-      </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <DoneTasksCounter tasks={tasks} />
+          <div>
+            {tasks.filter((task) => task?.done).length > 1 && (
+              <button
+                style={{
+                  color: "white",
+                  backgroundColor: "#cd2f40",
+                  padding: 8,
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: 'pointer'
+                }}
+                onClick={deleteAllCompleted}
+              >
+                Delete all completed
+              </button>
+            )}
+          </div>
+        </div>
 
-      <ErrorMessage
-        text={errorMessage}
-        clearMessage={() => setErrorMessage("")}
-      />
-      <ActionFeedback
-        message={actionMessage}
-        clearMessage={() => setActionMessage("")}
-        duration={2000}
-      />
-      <TaskList items={tasks} setItems={setTasks} getId={(task) => task.id}>
-        {(task) => (
-          <Task
-            task={task}
-            onToggle={toggleTask}
-            onDelete={deleteTask}
-            onEdit={editTask}
-          />
-        )}
-      </TaskList>
-    </>
+        <ErrorMessage
+          text={errorMessage}
+          clearMessage={() => setErrorMessage("")}
+        />
+        <ActionFeedback
+          message={actionMessage}
+          clearMessage={() => setActionMessage("")}
+          duration={2000}
+        />
+        <TaskList items={tasks} setItems={setTasks} getId={(task) => task.id}>
+          {(task) => (
+            <Task
+              task={task}
+              onToggle={toggleTask}
+              onDelete={deleteTask}
+              onEdit={editTask}
+            />
+          )}
+        </TaskList>
+      </div>
+    </div>
   );
 }
 
